@@ -1,0 +1,65 @@
+{
+  "skill_name": "consulta-doc-claude-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Cómo configuro un hook PostToolUse en settings.json para que se ejecute solo cuando se usa la tool Edit, y que dispare un comando de bash que haga prettier al archivo modificado. Pásame la estructura exacta del hook con todos los campos (matcher, type, command).",
+      "expected_output": "Respuesta en español que cite la URL oficial de hooks (probablemente https://code.claude.com/docs/en/hooks o similar), incluya un bloque JSON con la estructura del hook PostToolUse con los campos matcher, hooks/type/command, y al final los tres bloques obligatorios (URLs visitadas, estado de reference.md, y aviso de búsqueda si aplica).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Qué hace exactamente el flag --bare en el CLI de Claude Code y en qué se diferencia de --print/-p. Cuándo conviene usar uno u otro.",
+      "expected_output": "Respuesta en español que explique --bare (modo headless mínimo, sin output del harness) frente a -p/--print (modo non-interactive con output formateado), citando la URL oficial del CLI reference o changelog donde se introdujo --bare. Debe incluir los tres bloques obligatorios al final.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Cuáles son todos los modos de permisos disponibles en Claude Code y qué auto-aprueba cada uno. En particular me interesa saber qué hace el modo auto y qué requisitos tiene (plan, modelos compatibles, fallback tras bloqueos).",
+      "expected_output": "Respuesta en español que enumere los seis modos (default, acceptEdits, plan, auto, dontAsk, bypassPermissions) explicando cada uno, citando https://code.claude.com/docs/en/permission-modes (que ya está en reference.md). Debe detallar el clasificador de auto mode con sus requisitos (Max/Team/Enterprise/API, Sonnet 4.6 / Opus 4.6/4.7), regla de fallback tras 3 bloqueos consecutivos o 20 totales, y la lista de protected paths. Tres bloques obligatorios al final.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Cómo se invoca un subagente desde el Agent SDK de Python. Quiero pasar custom tools y un system prompt distinto al del agente principal. Qué clases necesito de claude_agent_sdk y cómo se construye la query.",
+      "expected_output": "Respuesta en español que cite las páginas del Agent SDK Python (probablemente subagents y/o reference). Debe explicar el uso de query/ClaudeAgentOptions, cómo se definen custom tools y cómo se inyecta system prompt. Incluye un ejemplo de código en Python tomado literalmente de la doc. Tres bloques obligatorios al final.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Estoy en Windows y quiero que Claude Code use PowerShell en lugar de Bash para ejecutar comandos. Hay alguna variable de entorno o setting que active eso, y desde qué versión está disponible.",
+      "expected_output": "Respuesta en español que cite CLAUDE_CODE_USE_POWERSHELL_TOOL como la variable correcta, mencionando la versión donde se introdujo (alrededor de v2.1.83-v2.1.85, semana 13 de 2026). Debe enlazar al changelog o a la página whats-new/2026-w13 que ya está en reference.md. Tres bloques obligatorios al final.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Consulta cómo se configuran las statuslines porque quiero personalizar la mía",
+      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Consulta' + 'porque quiero personalizar'). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO: línea introductoria tipo 'Información preparatoria de Claude Code consultada para la tarea en curso:', lista clicable de URLs visitadas (esperable https://code.claude.com/docs/en/statusline) y una frase de estado de reference.md. NO debe contener la explicación técnica de cómo configurar la statusline. El mensaje final del sub-agente al modelo principal debe ser exactamente la frase meta del paso 9 con la ruta absoluta ya resuelta, sin contenido técnico duplicado.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Lee la doc de skills porque voy a crear una nueva skill mañana",
+      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Lee' + 'porque voy a crear'). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO línea introductoria + lista de URLs visitadas de skills (p. ej. https://code.claude.com/docs/en/skills y similares) + frase de estado de reference.md. NO debe contener un tutorial de cómo crear skills. Mensaje final del sub-agente: exactamente la frase meta del paso 9 con la ruta absoluta resuelta.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "¿Cómo se define un hook PostToolUse que audite cambios a archivos .py? Quiero implementarlo esta semana",
+      "expected_output": "INFO-TAREA por regla dura 2 (el verbo inicial es interrogativo '¿Cómo', pero la frase 'Quiero implementarlo esta semana' es una tarea posterior explícita que manda sobre el signo de pregunta). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe seguir el formato INFO-TAREA (línea intro + URLs + reference.md status), NO redactar la guía técnica completa. Mensaje final: frase meta del paso 9 con ruta resuelta.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "¿Qué es un output style?",
+      "expected_output": "DUDA inequívoca por regla dura 3 (signo ¿ + verbo interrogativo 'Qué', sin cláusula de tarea posterior). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener la respuesta completa (título, cuerpo explicando output styles citando https://code.claude.com/docs/en/output-styles, URLs visitadas, estado de reference.md). Mensaje final del sub-agente: exactamente la frase meta del paso 9 con ruta resuelta, SIN pegar el contenido técnico.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Cuáles son los modos de permisos y cómo activo el modo plan",
+      "expected_output": "DUDA por regla dura 3 (verbo interrogativo 'Cuáles' al inicio sin cláusula de tarea posterior). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe enumerar los modos de permisos y explicar la activación del modo plan (p. ej. https://code.claude.com/docs/en/permission-modes), seguido de URLs visitadas y estado de reference.md. Mensaje final del sub-agente: frase meta del paso 9 literal, sin contenido duplicado, sin introducciones ni cierres, sin envolver entre comillas o backticks.",
+      "files": []
+    }
+  ]
+}
