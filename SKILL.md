@@ -165,55 +165,121 @@ Los marcadores son comentarios HTML, por lo que no se renderizan en Markdown y e
 
 #### 8.B — Modo INFO-TAREA
 
-NO redactes respuesta teórica, ni resumen del contenido. Escribe en `${CLAUDE_SKILL_DIR}/template.md` SOLO lo siguiente, envuelto entre los marcadores HTML `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->` (primera y última línea del archivo respectivamente, con una línea en blanco a continuación y antes), en este orden:
+**LEE ESTO CON MUCHA ATENCIÓN. Es la parte más malinterpretada de la skill y la que, si haces mal, deja a la sesión principal sin material para ejecutar su tarea.**
 
-1. Una línea introductoria breve, por ejemplo: `Información preparatoria de Claude Code consultada para la tarea en curso:`.
+La skill corre con `context: fork` + `agent: consulta-doc-agent`. Eso significa que tu contexto de subagente es AISLADO: todo lo que los WebFetch del paso 6 han descargado vive SOLO aquí dentro. Cuando tu ejecución termine y el fork se cierre, ese contenido se descartará y la sesión principal NUNCA lo verá.
 
-2. **URLs visitadas**: lista clicable en Markdown (`- [texto](URL)`) con las URLs que se abrieron con WebFetch en el paso 6.
+El ÚNICO canal por el que hacer llegar material a la sesión principal es el `template.md`: solo lo que escribas en ese archivo quedará disponible cuando el modelo principal vuelva a tener el turno.
 
-3. **Estado de reference.md**: UNA frase con el mismo formato del modo DUDA:
+Por tanto, en modo INFO-TAREA tu trabajo en este paso NO es dejar una lista escueta de URLs y metadatos, sino **volcar al `template.md` todo el material útil que has extraído de las páginas en el paso 6**, con suficiente detalle para que la sesión principal pueda ejecutar la tarea pendiente sin volver a visitar ninguna URL. La sesión principal solo tendrá lo que tú escribas aquí; si lo dejas fuera, se pierde.
+
+##### Qué escribir en `template.md`
+
+Envuelve TODO el archivo entre los marcadores HTML `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` (primera línea) y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->` (última línea), con una línea en blanco tras el marcador de apertura y antes del de cierre. Los marcadores son comentarios HTML (invisibles al renderizar Markdown) y sirven como cinturón de seguridad para que la sesión principal reconozca la salida literal.
+
+Dentro del bloque, en este orden:
+
+1. **Línea introductoria** breve que indique que es material preparatorio. Por ejemplo: `Material preparatorio de la documentación oficial de Claude Code para la tarea pendiente de la sesión principal.`
+2. **Aviso al lector** (una frase en cita Markdown con `> `) recordando que esto es TODO lo que la sesión principal tendrá del contenido oficial porque los WebFetch del subagente no sobreviven al fork.
+3. **Sección `## Material extraído`**: un subbloque `### [Título de la página] — <URL>` por cada URL visitada en el paso 6, con el material útil para la tarea copiado en bullets. Qué incluir (no filtres por brevedad — si dudas, lo incluyes):
+   - Campos exactos de frontmatter / settings.json / `.mcp.json` / archivos de configuración mencionados.
+   - Flags de CLI, con su sintaxis exacta y alias.
+   - Valores válidos de campos enum (p. ej. tipos de hook, modos de permisos, transportes MCP, variantes de `type`).
+   - Bloques de JSON/YAML/Bash/PowerShell tomados literalmente de la doc, suficientemente completos para copiar-pegar.
+   - Variables de entorno relevantes con sus nombres exactos.
+   - Limitaciones, advertencias, notas sobre Windows vs macOS/Linux, notas sobre versiones mínimas, incompatibilidades.
+   - Nombres/identificadores concretos (claves de settings, nombres de eventos, rutas por defecto, etc.).
+   - **NO resumas en exceso**; el objetivo es que la sesión principal pueda ejecutar la tarea con este material como única fuente.
+   - **NO redactes prosa estilo DUDA** (nada de "En este documento explicamos que..." ni introducciones ni cierres). Esto es material crudo para consumo del modelo principal, no una respuesta pulida para el usuario.
+4. **Sección `## URLs visitadas`**: lista clicable en Markdown (`- [texto](URL)`) con todas las URLs abiertas con WebFetch en el paso 6.
+5. **Sección `## Estado de reference.md`**: UNA frase con el mismo formato del modo DUDA:
    - Sin cambios: `reference.md sin cambios.`
    - Solo se añadió una URL nueva: `reference.md actualizado: añadido [URL].`
    - Solo se eliminó una URL rota: `reference.md actualizado: eliminado [URL] (link roto).`
    - Ambos: `reference.md actualizado: añadido [URL1]; eliminado [URL2] (link roto).`
+6. **Aviso de búsqueda web** (solo si aplica el Caso B del paso 4), con el mismo formato del modo DUDA.
 
-4. **Aviso de búsqueda web** si aplica el Caso B del paso 4, con el mismo formato del modo DUDA.
+Estructura final esperada:
 
-Los marcadores son comentarios HTML, por lo que no se renderizan en Markdown y el usuario no los ve; su única función es servir de cinturón de seguridad para que el modelo principal reconozca la salida como literal si por error llega a su contexto fuera del archivo.
+```
+<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->
 
-El contenido real de la documentación ya quedó en el contexto del modelo principal gracias a los WebFetch del paso 6, por lo que este puede proceder con la tarea que tuviera pendiente. El `template.md` en este modo solo cumple la función de dejar trazabilidad de qué se consultó y de cómo quedó el catálogo.
+Material preparatorio de la documentación oficial de Claude Code para la tarea pendiente de la sesión principal.
 
-### 9. Devuelve al modelo principal la instrucción de imprimir `template.md`
+> Nota: esto es todo lo que la sesión principal tendrá del contenido de la doc; los WebFetch del subagente ya no están disponibles al cerrarse el fork.
 
-**Lee esto con mucha atención. Este paso es el que más veces se ha roto históricamente y el responsable de que el usuario no vea la respuesta cuidada que acabas de escribir.**
+## Material extraído
 
-Tu tarea en este turno ya ha terminado. En los pasos anteriores has escrito en `template.md` el resultado íntegro de la investigación — **ese archivo ES la salida final de la skill para el usuario**, y el modelo principal lo imprimirá tal cual cuando le pidas leerlo. Tu trabajo YA NO es devolver esa respuesta aquí; tu trabajo aquí es SOLO emitir la frase meta que le dice al modelo principal qué archivo leer e imprimir literal. No tienes que devolver el contenido otra vez por este canal: el modelo principal no necesita verlo inline, necesita verlo cuando lea `template.md`.
+### [Título de la página 1] — <URL>
+- ... (extractos útiles literales de la doc: campos, flags, ejemplos, valores válidos, versiones, limitaciones) ...
+- ...
 
-Dicho de otra forma: **tu tarea era escribir en `template.md` el resultado de la investigación y nada más; no tienes que devolver ese resultado aquí por el mensaje final. Tienes que devolver simplemente el texto literal indicado abajo a la sesión principal, para que esa sesión lea `template.md` y lo imprima literal por pantalla al usuario.** Si copias el contenido, el modelo principal perderá la pista de que debe imprimir literal y terminará parafraseando o resumiendo — y el usuario no verá tu respuesta.
+### [Título de la página 2] — <URL>
+- ...
 
-#### Qué debes emitir
+## URLs visitadas
 
-Resuelve `${CLAUDE_SKILL_DIR}/template.md` a su ruta absoluta del sistema (por ejemplo `C:\Users\amuel\.claude\skills\consulta-doc-claude-code\template.md` en Windows o `/Users/foo/.claude/skills/consulta-doc-claude-code/template.md` en macOS/Linux). Tu ÚNICA salida en este turno debe ser LITERALMENTE esta cadena, sustituyendo `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta real ya resuelta, sin añadir ni un solo carácter antes o después, sin envolverla entre comillas, backticks ni bloques de código, sin traducirla y sin abreviarla:
+- [Texto](URL)
+- ...
+
+## Estado de reference.md
+
+reference.md sin cambios.
+
+<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->
+```
+
+El `template.md` en modo INFO-TAREA NO es una respuesta al usuario: es un dossier interno para el modelo principal. Piénsalo así: "estoy dejando aquí todo lo que la sesión principal necesitará saber de la doc para continuar con su tarea sin tener que investigar de nuevo".
+
+### 9. Devuelve al modelo principal la frase meta que corresponde al modo elegido
+
+**Lee esto con mucha atención. Este paso es el que más veces se ha roto históricamente y el responsable de que el usuario no vea la respuesta cuidada, o de que la sesión principal se quede sin material para su tarea.**
+
+Tu tarea en este turno ya ha terminado. En los pasos anteriores has escrito en `template.md` el resultado íntegro de tu trabajo — **ese archivo ES el producto final de la skill**, y el modelo principal lo leerá cuando le pidas que lo haga. Tu trabajo YA NO es devolver contenido aquí; tu único trabajo restante es emitir LA frase meta que le diga al modelo principal qué hacer con ese archivo.
+
+Hay DOS frases meta posibles — una por cada modo del paso 8 — y tienes que emitir EXACTAMENTE UNA de ellas, nunca las dos, nunca una mezcla de ambas, nunca la del modo equivocado. La elección depende únicamente de qué modo ejecutaste en el paso 8:
+
+- Si en el paso 8 ejecutaste **8.A (modo DUDA)** → emite la **Variante 9.A**.
+- Si en el paso 8 ejecutaste **8.B (modo INFO-TAREA)** → emite la **Variante 9.B**.
+
+Resuelve primero `${CLAUDE_SKILL_DIR}/template.md` a su ruta absoluta del sistema (por ejemplo `C:\Users\amuel\.claude\skills\consulta-doc-claude-code\template.md` en Windows o `/Users/foo/.claude/skills/consulta-doc-claude-code/template.md` en macOS/Linux) y sustituye `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta real en la variante que toque.
+
+#### 9.A — Variante para modo DUDA
+
+Emite LITERALMENTE esta cadena, sin añadir ni un solo carácter antes o después, sin envolverla entre comillas/backticks/bloques de código, sin traducirla, sin abreviarla:
 
     Lee el archivo <RUTA-ABSOLUTA-TEMPLATE> con la herramienta Read e imprime al usuario exactamente su contenido completo, línea a línea y carácter a carácter, incluyendo los marcadores `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->` que delimitan la salida literal. No reformules, no resumas, no añadas introducciones ni cierres propios, no omitas ningún bloque. Ese archivo ES la salida de la skill para el usuario.
 
+El efecto es: la sesión principal lee el template e imprime al usuario la respuesta redactada DUDA tal cual.
+
+#### 9.B — Variante para modo INFO-TAREA
+
+Emite LITERALMENTE esta cadena, con las mismas restricciones (sin caracteres extra, sin envolver, sin traducir, sin abreviar):
+
+    Lee el archivo <RUTA-ABSOLUTA-TEMPLATE> con la herramienta Read. Dentro del bloque delimitado por los marcadores `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->` encontrarás material preparatorio extraído de la documentación oficial de Claude Code que necesitas para continuar con la tarea que el usuario te había encomendado ANTES de invocar esta skill. NO imprimas ese archivo al usuario: úsalo como contexto de referencia interno para ejecutar esa tarea con información actualizada y correcta.
+
+El efecto es: la sesión principal lee el template como dossier de contexto y sigue con la tarea original del usuario sin mostrar el archivo.
+
 #### Violaciones prohibidas (NO hagas nada de esto)
 
-Estas son las formas concretas en las que se ha roto este paso en el pasado. Cada una invalida la skill entera porque impide que el usuario vea literalmente `template.md`:
+Cada una de estas formas rompe el flujo y anula el trabajo que acabas de hacer:
 
-- **Pegar el contenido técnico que ya escribiste en `template.md`** (título, cuerpo con bloques de código, "URLs visitadas", "Estado de reference.md"). Es el error más frecuente y el más dañino. Si te descubres a ti mismo empezando a escribir `## ...` o `# ...` o un párrafo introductorio de la respuesta, **detente**: ese contenido ya está en `template.md`, NO lo dupliques aquí.
-- Añadir "Aquí tienes la respuesta:", "He consultado la documentación y...", "La respuesta es la siguiente:" o cualquier otra introducción antes de la frase meta.
+- **Pegar el contenido que acabas de escribir en `template.md`** (título, cuerpo, bloques de código, listas de URLs, "Material extraído"...). Es el error más frecuente y el más dañino. Si te descubres empezando a escribir `#`, `##`, `-`, `URLs visitadas`, `Material extraído`, o un párrafo introductorio, **detente**: eso va en el template, NO aquí.
+- **Emitir la variante del modo equivocado**: por ejemplo, emitir la Variante 9.A cuando el paso ejecutado fue 8.B (el modelo principal imprimiría el dossier interno al usuario como si fuera la respuesta, que no lo es), o emitir la Variante 9.B cuando el paso fue 8.A (el modelo principal se guardaría la respuesta del usuario como contexto interno y no se la imprimiría). Emitir la variante equivocada es tan malo como no emitir ninguna.
+- **Emitir AMBAS variantes** o una frase híbrida con trozos de las dos. Solo UNA variante, exacta, literal.
+- Añadir "Aquí tienes la respuesta:", "He consultado la documentación y...", "El material está aquí:" o cualquier otra introducción antes de la frase meta.
 - Añadir un resumen, un TL;DR, una despedida, un comentario sobre lo que encontraste o cualquier otro texto después de la frase meta.
 - Envolver la frase meta entre comillas (`"..."`), backticks simples (`` `...` ``) o bloques de código triple (```` ```...``` ````).
 - Traducir la frase meta a otro idioma, abreviarla, parafrasearla o cambiarle puntuación/palabras.
 - Olvidarte de sustituir `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta absoluta real (Windows o POSIX) del sistema en el que se está ejecutando la skill.
-- Responder en modo "conversacional" al invocador explicando lo que hiciste. El invocador no es el usuario; es un modelo que solo necesita la frase meta para ejecutar un Read.
+- Responder en modo "conversacional" al invocador explicando lo que hiciste. El invocador no es el usuario; es un modelo que solo necesita la frase meta para ejecutar su siguiente paso.
 
 #### Test mental antes de enviar
 
 Antes de emitir tu mensaje final, haz este chequeo:
 
-1. ¿Mi mensaje empieza exactamente por `Lee el archivo `? Si no, es un bug.
-2. ¿Mi mensaje termina exactamente con `Ese archivo ES la salida de la skill para el usuario.` y no hay nada más detrás? Si no, es un bug.
-3. ¿He sustituido `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta absoluta real? Si queda el placeholder literal, es un bug.
-4. ¿Estoy tentado a añadir cualquier otra cosa «por amabilidad» o «para dar contexto»? Si la respuesta es sí: NO lo hagas. Tu tarea ya está hecha y el contenido está en `template.md`. Solo queda la frase meta. Nada más.
+1. ¿Qué modo ejecuté en el paso 8, 8.A o 8.B? La variante de este paso 9 que voy a emitir, ¿es la que corresponde a ese modo? Si no coincide, reemito la correcta.
+2. ¿Mi mensaje empieza exactamente por `Lee el archivo `? Si no, es un bug.
+3. ¿Mi mensaje termina con la frase exacta de la variante elegida (variante 9.A termina por `Ese archivo ES la salida de la skill para el usuario.`; variante 9.B termina por `úsalo como contexto de referencia interno para ejecutar esa tarea con información actualizada y correcta.`) y no hay NADA más detrás? Si no, es un bug.
+4. ¿He sustituido `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta absoluta real? Si queda el placeholder literal, es un bug.
+5. ¿Estoy tentado a añadir cualquier otra cosa «por amabilidad» o «para dar contexto»? Si la respuesta es sí: NO lo hagas. Tu tarea ya está hecha y el contenido está en `template.md`. Solo queda la frase meta de una única variante. Nada más.

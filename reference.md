@@ -398,6 +398,36 @@ description: Especificación técnica del sistema de plugins - componentes (skil
 ---
 
 ---
+link: https://code.claude.com/docs/en/agent-sdk/overview
+description: Visión general del Claude Agent SDK (antes Claude Code SDK) para construir agentes autónomos en Python (`pip install claude-agent-sdk`) y TypeScript (`npm install @anthropic-ai/claude-agent-sdk`). Explica la función central `query()`, herramientas built-in disponibles (Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch, Agent, Skill, Monitor, ToolSearch, AskUserQuestion), autenticación con `ANTHROPIC_API_KEY` o proveedores cloud (`CLAUDE_CODE_USE_BEDROCK=1`, `CLAUDE_CODE_USE_VERTEX=1`, `CLAUDE_CODE_USE_FOUNDRY=1`), configuración de MCP servers, sesiones reanudables con `resume=session_id`, y diferencias frente al Client SDK y al CLI.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/python
+description: Referencia completa del Agent SDK para Python: dataclass `ClaudeAgentOptions` con todos sus campos (`allowed_tools`, `permission_mode`, `max_turns`, `max_budget_usd`, `cwd`, `mcp_servers`, `agents`, `hooks`, `thinking`, `effort`, `setting_sources`, `plugins`, `sandbox`, `resume`, `fork_session`, `enable_file_checkpointing`), `PermissionMode` (valores `"default"`, `"acceptEdits"`, `"plan"`, `"dontAsk"`, `"bypassPermissions"`), tipos de mensaje (`UserMessage`, `AssistantMessage`, `SystemMessage`, `ResultMessage`, `StreamEvent`), `ResultMessage.subtype` (`"success"`, `"error_max_turns"`, `"error_max_budget_usd"`, `"error_during_execution"`), clase `ClaudeSDKClient` para conversaciones continuas con métodos `query()`, `interrupt()`, `receive_response()`, decorador `@tool` para herramientas custom, `create_sdk_mcp_server()` y funciones de gestión de sesiones (`list_sessions`, `get_session_messages`, `rename_session`, `tag_session`).
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/agent-loop
+description: Explica el funcionamiento interno del agent loop del SDK: fases (recibir prompt → evaluar → ejecutar herramientas → repetir → ResultMessage), concepto de turn, ejecución paralela vs secuencial de herramientas (read-only en paralelo con `readOnlyHint`/`readOnly`), niveles de `effort` (`"low"`, `"medium"`, `"high"`, `"xhigh"`, `"max"`), compactación automática con evento `compact_boundary`, hook `PreCompact` con campo `trigger` (`"manual"`/`"auto"`), `settingSources`/`setting_sources` (valores `"project"`, `"user"`), `ResultMessage.subtype` con todos sus valores de error, `stop_reason` (`"end_turn"`, `"max_tokens"`, `"refusal"`), y gestión del contexto con subagentes.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/subagents
+description: Documentación de subagentes en el Agent SDK: tres formas de crearlos (programáticamente con parámetro `agents`, ficheros en `.claude/agents/`, subagente built-in `general-purpose`), campos de `AgentDefinition` (`description`, `prompt`, `tools`, `disallowedTools`, `model` con alias `"sonnet"`/`"opus"`/`"haiku"`/`"inherit"`, `skills`, `memory`, `mcpServers`, `maxTurns`, `background`, `effort`, `permissionMode`), requisito de incluir `"Agent"` en `allowedTools`, herencia de contexto (NO hereda historial del padre ni sus skills), limitación de que subagentes no pueden invocar sub-subagentes, detección por `parent_tool_use_id` y nombre de herramienta `"Agent"` (antes `"Task"` < v2.1.63), reanudación con `resume=session_id` + `agentId`, y limitación de 8191 chars en Windows.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/hosting
+description: Guía para desplegar el Claude Agent SDK en producción: requisitos (Python 3.10+/Node.js 18+, 1 GiB RAM, 5 GiB disco, HTTPS a `api.anthropic.com`), el SDK como proceso de larga duración (no stateless), proveedores de sandbox recomendados (Modal, Cloudflare, Daytona, E2B, Fly Machines, Vercel), cuatro patrones de despliegue (Ephemeral sessions, Long-running sessions, Hybrid sessions, Single containers), configuración del campo `sandbox` en `ClaudeAgentOptions`, y recomendación de fijar `maxTurns` en producción.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/plugins
+description: Cómo cargar plugins en el Agent SDK mediante el campo `plugins` con objetos `{"type": "local", "path": "..."}` (rutas relativas o absolutas al directorio raíz del plugin que contiene `.claude-plugin/plugin.json`), verificación en el `SystemMessage` de `subtype="init"` (campos `plugins` y `slash_commands`), namespace de skills como `plugin-name:skill-name`, estructura del directorio del plugin (`skills/`, `agents/`, `hooks/`, `.mcp.json`), y localización de plugins instalados via CLI en `~/.claude/plugins/`.
+---
+
+---
 link: https://code.claude.com/docs/en/channels-reference
 description: Guía para construir servidores MCP tipo "channel" que inyectan eventos externos (webhooks, alertas, chats) en una sesión de Claude Code. Documenta el contrato - capacidad `claude/channel`, notificaciones `notifications/claude/channel` con `content` y `meta`, herramientas de respuesta para canales bidireccionales, gating de remitentes para evitar prompt injection, y relay de permisos (`claude/channel/permission`) para aprobar o denegar tool use remotamente con IDs de cinco letras. Incluye ejemplo completo en Bun/TypeScript y requiere `--dangerously-load-development-channels` durante el research preview.
 ---
@@ -576,4 +606,14 @@ description: Recopila los acuerdos legales y de cumplimiento aplicables a Claude
 ---
 link: https://code.claude.com/docs/en/terminal-guide
 description: Guía paso a paso para usuarios novatos de terminal que explica cómo abrir una terminal en macOS, Linux y Windows, instalar Claude Code con `curl -fsSL https://claude.ai/install.sh | bash` (macOS/Linux), `irm https://claude.ai/install.ps1 | iex` (PowerShell) o el equivalente en CMD, y arrancar con `claude`. Incluye primeros pasos (usar flechas, `Esc` para interrumpir, `Ctrl+D` o `exit` para salir, `/help`), ejemplos de prompts básicos y troubleshooting para errores comunes como `command not found`, `irm is not recognized`, `git-bash` no encontrado con `CLAUDE_CODE_GIT_BASH_PATH`, y errores SSL/TLS.
+---
+
+---
+link: https://code.claude.com/docs/en/amazon-bedrock
+description: Explica cómo usar Claude Code con Amazon Bedrock: wizard de login (`/setup-bedrock`), configuración manual con variables de entorno (`CLAUDE_CODE_USE_BEDROCK=1`, `AWS_REGION`, `AWS_BEARER_TOKEN_BEDROCK`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`), opciones de autenticación AWS (CLI, access key, SSO, Bedrock API keys), configuración de IAM, endpoint Mantle (`CLAUDE_CODE_USE_MANTLE=1`), AWS Guardrails mediante `ANTHROPIC_CUSTOM_HEADERS`, y `awsAuthRefresh`/`awsCredentialExport` para refresco automático de credenciales.
+---
+
+---
+link: https://code.claude.com/docs/en/google-vertex-ai
+description: Explica cómo usar Claude Code con Google Vertex AI: wizard de login (`/setup-vertex`), configuración manual con variables de entorno (`CLAUDE_CODE_USE_VERTEX=1`, `CLOUD_ML_REGION`, `ANTHROPIC_VERTEX_PROJECT_ID`, `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, `VERTEX_REGION_CLAUDE_*`), autenticación mediante Application Default Credentials o service account key, permisos IAM (`roles/aiplatform.user`, `aiplatform.endpoints.predict`), soporte a ventana de contexto 1M y troubleshooting de errores 404/429.
 ---
