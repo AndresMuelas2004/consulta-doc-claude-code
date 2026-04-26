@@ -300,6 +300,16 @@ description: Explica el sandbox nativo de Claude Code que aísla el filesystem y
 ---
 
 ---
+link: https://code.claude.com/docs/en/agent-sdk/mcp
+description: Referencia del SDK de agentes para conectar Claude a servidores MCP: configura servidores stdio (campos `command`, `args`, `env`) y remotos HTTP/SSE (campos `type`, `url`, `headers`) tanto en código (opción `mcpServers` de `query()`) como desde `.mcp.json` con `settingSources`; explica la convención de nombres `mcp__<servidor>__<herramienta>`, el campo `allowedTools` con wildcards, los transportes disponibles (stdio, http, sse, SDK in-process), el campo `env` con expansión `${VAR}` para credenciales, autenticación OAuth2 vía headers y manejo de errores con el mensaje `system/init`.
+---
+
+---
+link: https://code.claude.com/docs/en/plugins-reference
+description: Referencia técnica completa del sistema de plugins de Claude Code: esquemas de componentes (skills en `skills/`, agents en `agents/`, hooks, MCP servers en `.mcp.json` o inline en `plugin.json`, LSP servers en `.lsp.json`), campos de MCP server en plugins (`command`, `args`, `env`, `cwd`, con variables `${CLAUDE_PLUGIN_ROOT}` y `${CLAUDE_PLUGIN_DATA}`), tabla de eventos de hook con tipos `command`/`http`/`mcp_tool`/`prompt`/`agent`, comandos CLI `claude plugin marketplace add/list/remove/update` y herramientas de testing con `--plugin-dir`.
+---
+
+---
 link: https://code.claude.com/docs/en/terminal-config
 description: Guía para optimizar la terminal con Claude Code cubriendo el comando `/theme`, configuración de saltos de línea (Shift+Enter, Ctrl+J, `/terminal-setup` para VS Code/Alacritty/Zed/Warp, extended-keys en tmux, Option-as-Meta en macOS), alertas nativas en iTerm2/Kitty/Ghostty con `allow-passthrough` en tmux, activación de fullscreen con `/tui fullscreen` y el modo Vim habilitado vía `editorMode: "vim"` en `~/.claude.json`.
 ---
@@ -388,6 +398,21 @@ description: Explica el sistema de checkpoints automático que captura el estado
 ---
 
 ---
+link: https://code.claude.com/docs/en/admin-setup
+description: Guía de decisiones para administradores que despliegan Claude Code en una organización: comparativa de API providers (Teams/Enterprise, Console, Bedrock, Vertex, Foundry), mecanismos de entrega de managed settings (server-managed, plist/MDM `com.anthropic.claudecode`, HKLM registry, file-based con rutas exactas por SO, HKCU), tabla de controles de enforcement (`allowManagedPermissionRulesOnly`, `sandbox.enabled`, `allowManagedMcpServersOnly`, `strictKnownMarketplaces`, `minimumVersion`), opciones de visibilidad de uso (OpenTelemetry, analytics dashboard, cost tracking), política de datos (sin entrenamiento en Teams/Enterprise/API, ZDR para Enterprise), y verificación con `/status` para confirmar fuente activa de managed settings.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/subagents
+description: Documentación de subagentes en el Claude Agent SDK (TypeScript y Python): cómo definirlos programáticamente con el parámetro `agents` en `query()` usando `AgentDefinition` con campos `description`, `prompt`, `tools`, `disallowedTools`, `model` (alias `sonnet`/`opus`/`haiku`/`inherit` o ID completo), `skills`, `memory`, `mcpServers`, `maxTurns`, `background`, `effort`, `permissionMode`; tabla de qué hereda el subagente (CLAUDE.md, subset de tools) y qué no hereda (historial del padre, system prompt del padre, skills); detección de invocación vía tool `Agent` (antes `Task`, renombrado en v2.1.63); cómo reanudar subagentes por `agentId` y `session_id`; y combinaciones típicas de tools por caso de uso.
+---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/cost-tracking
+description: Documenta cómo rastrear el uso de tokens y costes en el Agent SDK (TypeScript y Python), incluyendo la configuración del prompt cache: TTL por defecto de 5 minutos para API key y proveedores cloud (Bedrock, Vertex, Foundry), cómo habilitar TTL de 1 hora con `ENABLE_PROMPT_CACHING_1H`, campos `cache_creation_input_tokens` y `cache_read_input_tokens`, y nota de que los suscriptores Claude ya tienen TTL de 1 hora automáticamente.
+---
+
+---
 link: https://code.claude.com/docs/en/hooks
 description: Referencia del sistema de hooks de Claude Code - eventos del ciclo de vida (`SessionStart`, `SessionEnd`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `PermissionRequest`, `Stop`, `PreCompact`, `FileChanged`, `SubagentStart`, etc.), los cuatro tipos de hook (`command`, `http`, `prompt`, `agent`), formato JSON de configuración con `matcher` y `if`, ubicaciones (`~/.claude/settings.json`, `.claude/settings.json`, plugins), códigos de salida, control de decisiones (allow/deny/ask/defer) y patrones de matcher incluyendo regex y herramientas MCP.
 ---
@@ -395,6 +420,11 @@ description: Referencia del sistema de hooks de Claude Code - eventos del ciclo 
 ---
 link: https://code.claude.com/docs/en/plugins-reference
 description: Especificación técnica del sistema de plugins - componentes (skills, agents, hooks, MCP servers, LSP servers, monitors), manifiesto `.claude-plugin/plugin.json` con todos sus campos, variables `${CLAUDE_PLUGIN_ROOT}` y `${CLAUDE_PLUGIN_DATA}`, `userConfig` para valores sensibles y no sensibles, estructura de directorios, scopes de instalación (`user`, `project`, `local`, `managed`), caché en `~/.claude/plugins/cache` y comandos CLI (`claude plugin install/uninstall/enable/disable/update/list`).
+---
+
+---
+link: https://code.claude.com/docs/en/auto-mode-config
+description: Referencia de configuración del clasificador de auto mode: campo `autoMode.environment` para declarar repos, buckets y dominios de confianza (con `"$defaults"` para heredar los defaults), campos `autoMode.allow` y `autoMode.soft_deny` para sobreescribir las reglas de excepción y bloqueo, scopes de configuración (usuario `~/.claude/settings.json`, proyecto local `.claude/settings.local.json`, managed settings, flag `--settings`), y subcomandos CLI `claude auto-mode defaults`, `claude auto-mode config` y `claude auto-mode critique` para inspeccionar y validar la configuración efectiva.
 ---
 
 ---
@@ -534,6 +564,10 @@ description: Referencia completa de la API del Agent SDK de TypeScript para Clau
 link: https://code.claude.com/docs/en/agent-sdk/file-checkpointing
 description: Explica el checkpointing de archivos modificados por Write/Edit/NotebookEdit activando `enable_file_checkpointing=True` y `extra_args={"replay-user-messages": None}` para recibir UUIDs en mensajes de usuario. Usa `rewind_files(checkpoint_id)`/`rewindFiles()` tras reanudar la sesión con `resume=session_id` y prompt vacío para restaurar archivos al estado previo; no afecta la historia conversacional ni cambios hechos por Bash.
 ---
+
+---
+link: https://code.claude.com/docs/en/agent-sdk/session-storage
+description: Documenta el adaptador `SessionStore` para persistir transcripts de sesión en almacenamiento externo (S3, Redis, Postgres) con los métodos requeridos `append`/`load` y los opcionales `listSessions`/`delete`/`listSubkeys`. Explica `SessionKey` (campos `projectKey`, `sessionId`, `subpath`), `InMemorySessionStore` para desarrollo/tests, el patrón dual-write (el SDK escribe localmente y luego sincroniza al store), que `forkSession` reescribe los `sessionId` internos (no es una copia byte a byte), y que `sessionStore` es incompatible con `persistSession: false` y con `enableFileCheckpointing`. Incluye referencias a adaptadores de ejemplo para S3 (`S3SessionStore`), Redis (`RedisSessionStore`) y Postgres (`PostgresSessionStore`) en el repositorio oficial.
 
 ---
 link: https://code.claude.com/docs/en/agent-sdk/cost-tracking
