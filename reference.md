@@ -408,6 +408,11 @@ description: Documentación de subagentes en el Claude Agent SDK (TypeScript y P
 ---
 
 ---
+link: https://code.claude.com/docs/en/agent-sdk/plugins
+description: Cómo cargar plugins desde el filesystem en el Agent SDK de Claude Code (TypeScript y Python) usando el parámetro `plugins` en `query()` con objetos `{type: "local", path: "..."}`, rutas relativas o absolutas, verificación de plugins cargados vía el mensaje `system/init` (campos `plugins` y `slash_commands`), invocación de skills con namespace `plugin-name:skill-name`, y estructura mínima requerida del directorio de plugin (`.claude-plugin/plugin.json` más `skills/`, `commands/`, `agents/`, `hooks/`, `.mcp.json` opcionales).
+---
+
+---
 link: https://code.claude.com/docs/en/agent-sdk/cost-tracking
 description: Documenta cómo rastrear el uso de tokens y costes en el Agent SDK (TypeScript y Python), incluyendo la configuración del prompt cache: TTL por defecto de 5 minutos para API key y proveedores cloud (Bedrock, Vertex, Foundry), cómo habilitar TTL de 1 hora con `ENABLE_PROMPT_CACHING_1H`, campos `cache_creation_input_tokens` y `cache_read_input_tokens`, y nota de que los suscriptores Claude ya tienen TTL de 1 hora automáticamente.
 ---
