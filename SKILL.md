@@ -105,7 +105,7 @@ Si no hay ni URL nueva ni URL rota, NO toques el archivo.
 
 ### 8. Clasifica el tipo de invocación y redacta según corresponda
 
-Antes de escribir nada en `template.md`, clasifica la invocación en uno de estos dos modos:
+Antes de escribir nada en `template_${CLAUDE_SESSION_ID}.md`, clasifica la invocación en uno de estos dos modos:
 
 - **Modo DUDA**: `$ARGUMENTS` formula una pregunta o consulta concreta que espera una respuesta teórica que la cierre (p. ej. "cómo configuro un hook PostToolUse", "qué hace `--bare`", "por qué mi skill no se invoca"). La salida final ES la respuesta a esa duda.
 
@@ -125,7 +125,7 @@ Pistas heurísticas (fallback):
 - Imperativos de recolección ("lee", "consulta", "mira", "reúne", "busca") o mención explícita de una tarea posterior ("para crear...", "antes de hacer...", "como paso previo a...") → INFO-TAREA.
 - Si es genuinamente ambiguo, prefiere DUDA.
 
-Sea cual sea el modo, al final sobrescribirás `${CLAUDE_SKILL_DIR}/template.md` íntegramente con `Write` (no `Edit`). El archivo debe contener EXACTAMENTE lo que el modelo principal imprimirá al usuario: sin comentarios HTML, sin meta-instrucciones, sin delimitadores, sin comillas envolventes.
+Sea cual sea el modo, al final sobrescribirás `${CLAUDE_SKILL_DIR}/template_${CLAUDE_SESSION_ID}.md` íntegramente con `Write` (no `Edit`). El archivo debe contener EXACTAMENTE lo que el modelo principal imprimirá al usuario: sin comentarios HTML, sin meta-instrucciones, sin delimitadores, sin comillas envolventes.
 
 #### 8.A — Modo DUDA
 
@@ -151,7 +151,7 @@ Redacta la respuesta en **ESPAÑOL** siguiendo estas pautas:
 
 3. **Aviso de búsqueda web** (solo si aplica el Caso B del paso 4): una frase del tipo `Nota: la búsqueda web devolvió primero un resultado ajeno al dominio oficial ([URL]); se usó el primer resultado oficial que apareció más abajo.`
 
-Sobrescribe `${CLAUDE_SKILL_DIR}/template.md` con la respuesta completa **envuelta entre los marcadores HTML `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->`**, que deben ser la primera y la última línea del archivo respectivamente, con una línea en blanco a continuación y antes, así:
+Sobrescribe `${CLAUDE_SKILL_DIR}/template_${CLAUDE_SESSION_ID}.md` con la respuesta completa **envuelta entre los marcadores HTML `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->`**, que deben ser la primera y la última línea del archivo respectivamente, con una línea en blanco a continuación y antes, así:
 
 ```
 <!-- SKILL-CONSULTA-DOC:OUTPUT-START -->
@@ -169,11 +169,11 @@ Los marcadores son comentarios HTML, por lo que no se renderizan en Markdown y e
 
 La skill corre con `context: fork` + `agent: consulta-doc-agent`. Eso significa que tu contexto de subagente es AISLADO: todo lo que los WebFetch del paso 6 han descargado vive SOLO aquí dentro. Cuando tu ejecución termine y el fork se cierre, ese contenido se descartará y la sesión principal NUNCA lo verá.
 
-El ÚNICO canal por el que hacer llegar material a la sesión principal es el `template.md`: solo lo que escribas en ese archivo quedará disponible cuando el modelo principal vuelva a tener el turno.
+El ÚNICO canal por el que hacer llegar material a la sesión principal es el `template_${CLAUDE_SESSION_ID}.md`: solo lo que escribas en ese archivo quedará disponible cuando el modelo principal vuelva a tener el turno.
 
-Por tanto, en modo INFO-TAREA tu trabajo en este paso NO es dejar una lista escueta de URLs y metadatos, sino **volcar al `template.md` todo el material útil que has extraído de las páginas en el paso 6**, con suficiente detalle para que la sesión principal pueda ejecutar la tarea pendiente sin volver a visitar ninguna URL. La sesión principal solo tendrá lo que tú escribas aquí; si lo dejas fuera, se pierde.
+Por tanto, en modo INFO-TAREA tu trabajo en este paso NO es dejar una lista escueta de URLs y metadatos, sino **volcar al `template_${CLAUDE_SESSION_ID}.md` todo el material útil que has extraído de las páginas en el paso 6**, con suficiente detalle para que la sesión principal pueda ejecutar la tarea pendiente sin volver a visitar ninguna URL. La sesión principal solo tendrá lo que tú escribas aquí; si lo dejas fuera, se pierde.
 
-##### Qué escribir en `template.md`
+##### Qué escribir en `template_${CLAUDE_SESSION_ID}.md`
 
 Envuelve TODO el archivo entre los marcadores HTML `<!-- SKILL-CONSULTA-DOC:OUTPUT-START -->` (primera línea) y `<!-- SKILL-CONSULTA-DOC:OUTPUT-END -->` (última línea), con una línea en blanco tras el marcador de apertura y antes del de cierre. Los marcadores son comentarios HTML (invisibles al renderizar Markdown) y sirven como cinturón de seguridad para que la sesión principal reconozca la salida literal.
 
@@ -229,20 +229,20 @@ reference.md sin cambios.
 <!-- SKILL-CONSULTA-DOC:OUTPUT-END -->
 ```
 
-El `template.md` en modo INFO-TAREA NO es una respuesta al usuario: es un dossier interno para el modelo principal. Piénsalo así: "estoy dejando aquí todo lo que la sesión principal necesitará saber de la doc para continuar con su tarea sin tener que investigar de nuevo".
+El `template_${CLAUDE_SESSION_ID}.md` en modo INFO-TAREA NO es una respuesta al usuario: es un dossier interno para el modelo principal. Piénsalo así: "estoy dejando aquí todo lo que la sesión principal necesitará saber de la doc para continuar con su tarea sin tener que investigar de nuevo".
 
 ### 9. Devuelve al modelo principal la frase meta que corresponde al modo elegido
 
 **Lee esto con mucha atención. Este paso es el que más veces se ha roto históricamente y el responsable de que el usuario no vea la respuesta cuidada, o de que la sesión principal se quede sin material para su tarea.**
 
-Tu tarea en este turno ya ha terminado. En los pasos anteriores has escrito en `template.md` el resultado íntegro de tu trabajo — **ese archivo ES el producto final de la skill**, y el modelo principal lo leerá cuando le pidas que lo haga. Tu trabajo YA NO es devolver contenido aquí; tu único trabajo restante es emitir LA frase meta que le diga al modelo principal qué hacer con ese archivo.
+Tu tarea en este turno ya ha terminado. En los pasos anteriores has escrito en `template_${CLAUDE_SESSION_ID}.md` el resultado íntegro de tu trabajo — **ese archivo ES el producto final de la skill**, y el modelo principal lo leerá cuando le pidas que lo haga. Tu trabajo YA NO es devolver contenido aquí; tu único trabajo restante es emitir LA frase meta que le diga al modelo principal qué hacer con ese archivo.
 
 Hay DOS frases meta posibles — una por cada modo del paso 8 — y tienes que emitir EXACTAMENTE UNA de ellas, nunca las dos, nunca una mezcla de ambas, nunca la del modo equivocado. La elección depende únicamente de qué modo ejecutaste en el paso 8:
 
 - Si en el paso 8 ejecutaste **8.A (modo DUDA)** → emite la **Variante 9.A**.
 - Si en el paso 8 ejecutaste **8.B (modo INFO-TAREA)** → emite la **Variante 9.B**.
 
-Resuelve primero `${CLAUDE_SKILL_DIR}/template.md` a su ruta absoluta del sistema (por ejemplo `C:\Users\amuel\.claude\skills\consulta-doc-claude-code\template.md` en Windows o `/Users/foo/.claude/skills/consulta-doc-claude-code/template.md` en macOS/Linux) y sustituye `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta real en la variante que toque.
+Resuelve primero `${CLAUDE_SKILL_DIR}/template_${CLAUDE_SESSION_ID}.md` a su ruta absoluta del sistema (por ejemplo `C:\Users\amuel\.claude\skills\consulta-doc-claude-code\template_${CLAUDE_SESSION_ID}.md` en Windows o `/Users/foo/.claude/skills/consulta-doc-claude-code/template_${CLAUDE_SESSION_ID}.md` en macOS/Linux) y sustituye `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta real en la variante que toque.
 
 #### 9.A — Variante para modo DUDA
 
@@ -264,7 +264,7 @@ El efecto es: la sesión principal lee el template como dossier de contexto y si
 
 Cada una de estas formas rompe el flujo y anula el trabajo que acabas de hacer:
 
-- **Pegar el contenido que acabas de escribir en `template.md`** (título, cuerpo, bloques de código, listas de URLs, "Material extraído"...). Es el error más frecuente y el más dañino. Si te descubres empezando a escribir `#`, `##`, `-`, `URLs visitadas`, `Material extraído`, o un párrafo introductorio, **detente**: eso va en el template, NO aquí.
+- **Pegar el contenido que acabas de escribir en `template_${CLAUDE_SESSION_ID}.md`** (título, cuerpo, bloques de código, listas de URLs, "Material extraído"...). Es el error más frecuente y el más dañino. Si te descubres empezando a escribir `#`, `##`, `-`, `URLs visitadas`, `Material extraído`, o un párrafo introductorio, **detente**: eso va en el template, NO aquí.
 - **Emitir la variante del modo equivocado**: por ejemplo, emitir la Variante 9.A cuando el paso ejecutado fue 8.B (el modelo principal imprimiría el dossier interno al usuario como si fuera la respuesta, que no lo es), o emitir la Variante 9.B cuando el paso fue 8.A (el modelo principal se guardaría la respuesta del usuario como contexto interno y no se la imprimiría). Emitir la variante equivocada es tan malo como no emitir ninguna.
 - **Emitir AMBAS variantes** o una frase híbrida con trozos de las dos. Solo UNA variante, exacta, literal.
 - Añadir "Aquí tienes la respuesta:", "He consultado la documentación y...", "El material está aquí:" o cualquier otra introducción antes de la frase meta.
@@ -282,4 +282,4 @@ Antes de emitir tu mensaje final, haz este chequeo:
 2. ¿Mi mensaje empieza exactamente por `Lee el archivo `? Si no, es un bug.
 3. ¿Mi mensaje termina con la frase exacta de la variante elegida (variante 9.A termina por `Ese archivo ES la salida de la skill para el usuario.`; variante 9.B termina por `úsalo como contexto de referencia interno para ejecutar esa tarea con información actualizada y correcta.`) y no hay NADA más detrás? Si no, es un bug.
 4. ¿He sustituido `<RUTA-ABSOLUTA-TEMPLATE>` por la ruta absoluta real? Si queda el placeholder literal, es un bug.
-5. ¿Estoy tentado a añadir cualquier otra cosa «por amabilidad» o «para dar contexto»? Si la respuesta es sí: NO lo hagas. Tu tarea ya está hecha y el contenido está en `template.md`. Solo queda la frase meta de una única variante. Nada más.
+5. ¿Estoy tentado a añadir cualquier otra cosa «por amabilidad» o «para dar contexto»? Si la respuesta es sí: NO lo hagas. Tu tarea ya está hecha y el contenido está en `template_${CLAUDE_SESSION_ID}.md`. Solo queda la frase meta de una única variante. Nada más.

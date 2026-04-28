@@ -34,31 +34,31 @@
     {
       "id": 6,
       "prompt": "Consulta cómo se configuran las statuslines porque quiero personalizar la mía",
-      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Consulta' + 'porque quiero personalizar'). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO: línea introductoria tipo 'Información preparatoria de Claude Code consultada para la tarea en curso:', lista clicable de URLs visitadas (esperable https://code.claude.com/docs/en/statusline) y una frase de estado de reference.md. NO debe contener la explicación técnica de cómo configurar la statusline. El mensaje final del sub-agente al modelo principal debe ser exactamente la frase meta del paso 9 con la ruta absoluta ya resuelta, sin contenido técnico duplicado.",
+      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Consulta' + 'porque quiero personalizar'). template_<session_id>.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO: línea introductoria tipo 'Información preparatoria de Claude Code consultada para la tarea en curso:', lista clicable de URLs visitadas (esperable https://code.claude.com/docs/en/statusline) y una frase de estado de reference.md. NO debe contener la explicación técnica de cómo configurar la statusline. El mensaje final del sub-agente al modelo principal debe ser exactamente la frase meta del paso 9 con la ruta absoluta ya resuelta, sin contenido técnico duplicado.",
       "files": []
     },
     {
       "id": 7,
       "prompt": "Lee la doc de skills porque voy a crear una nueva skill mañana",
-      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Lee' + 'porque voy a crear'). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO línea introductoria + lista de URLs visitadas de skills (p. ej. https://code.claude.com/docs/en/skills y similares) + frase de estado de reference.md. NO debe contener un tutorial de cómo crear skills. Mensaje final del sub-agente: exactamente la frase meta del paso 9 con la ruta absoluta resuelta.",
+      "expected_output": "INFO-TAREA inequívoco por regla dura 1 (imperativo 'Lee' + 'porque voy a crear'). template_<session_id>.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener SOLO línea introductoria + lista de URLs visitadas de skills (p. ej. https://code.claude.com/docs/en/skills y similares) + frase de estado de reference.md. NO debe contener un tutorial de cómo crear skills. Mensaje final del sub-agente: exactamente la frase meta del paso 9 con la ruta absoluta resuelta.",
       "files": []
     },
     {
       "id": 8,
       "prompt": "¿Cómo se define un hook PostToolUse que audite cambios a archivos .py? Quiero implementarlo esta semana",
-      "expected_output": "INFO-TAREA por regla dura 2 (el verbo inicial es interrogativo '¿Cómo', pero la frase 'Quiero implementarlo esta semana' es una tarea posterior explícita que manda sobre el signo de pregunta). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe seguir el formato INFO-TAREA (línea intro + URLs + reference.md status), NO redactar la guía técnica completa. Mensaje final: frase meta del paso 9 con ruta resuelta.",
+      "expected_output": "INFO-TAREA por regla dura 2 (el verbo inicial es interrogativo '¿Cómo', pero la frase 'Quiero implementarlo esta semana' es una tarea posterior explícita que manda sobre el signo de pregunta). template_<session_id>.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe seguir el formato INFO-TAREA (línea intro + URLs + reference.md status), NO redactar la guía técnica completa. Mensaje final: frase meta del paso 9 con ruta resuelta.",
       "files": []
     },
     {
       "id": 9,
       "prompt": "¿Qué es un output style?",
-      "expected_output": "DUDA inequívoca por regla dura 3 (signo ¿ + verbo interrogativo 'Qué', sin cláusula de tarea posterior). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener la respuesta completa (título, cuerpo explicando output styles citando https://code.claude.com/docs/en/output-styles, URLs visitadas, estado de reference.md). Mensaje final del sub-agente: exactamente la frase meta del paso 9 con ruta resuelta, SIN pegar el contenido técnico.",
+      "expected_output": "DUDA inequívoca por regla dura 3 (signo ¿ + verbo interrogativo 'Qué', sin cláusula de tarea posterior). template_<session_id>.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe contener la respuesta completa (título, cuerpo explicando output styles citando https://code.claude.com/docs/en/output-styles, URLs visitadas, estado de reference.md). Mensaje final del sub-agente: exactamente la frase meta del paso 9 con ruta resuelta, SIN pegar el contenido técnico.",
       "files": []
     },
     {
       "id": 10,
       "prompt": "Cuáles son los modos de permisos y cómo activo el modo plan",
-      "expected_output": "DUDA por regla dura 3 (verbo interrogativo 'Cuáles' al inicio sin cláusula de tarea posterior). template.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe enumerar los modos de permisos y explicar la activación del modo plan (p. ej. https://code.claude.com/docs/en/permission-modes), seguido de URLs visitadas y estado de reference.md. Mensaje final del sub-agente: frase meta del paso 9 literal, sin contenido duplicado, sin introducciones ni cierres, sin envolver entre comillas o backticks.",
+      "expected_output": "DUDA por regla dura 3 (verbo interrogativo 'Cuáles' al inicio sin cláusula de tarea posterior). template_<session_id>.md envuelto entre los marcadores HTML SKILL-CONSULTA-DOC:OUTPUT-START/END debe enumerar los modos de permisos y explicar la activación del modo plan (p. ej. https://code.claude.com/docs/en/permission-modes), seguido de URLs visitadas y estado de reference.md. Mensaje final del sub-agente: frase meta del paso 9 literal, sin contenido duplicado, sin introducciones ni cierres, sin envolver entre comillas o backticks.",
       "files": []
     }
   ]
