@@ -15,6 +15,36 @@ La skill corre en un subagente forkeado (`context: fork` + `agent: consulta-doc-
    - **INFO-TAREA**: la consulta es preparatoria para una tarea posterior. La skill deja material crudo en `template_<session_id>.md` para que la sesión principal continúe.
 6. Devuelve a la sesión principal una "frase meta" con la ruta absoluta del template para que se imprima al usuario o se use como contexto interno.
 
+## El agent custom (`consulta-doc-agent`)
+
+La skill no podría correr sin el agent custom que ejecuta el fork. Este es el archivo completo, tal y como vive en [`install/agents/consulta-doc-agent.md`](./install/agents/consulta-doc-agent.md) y debe instalarse en `~/.claude/agents/consulta-doc-agent.md`:
+
+```yaml
+---
+name: consulta-doc-agent
+description: NUNCA EJECUTAR. Uso interno exclusivo de la skill consulta-doc-claude-code.
+tools: Read, Write, Edit, WebFetch, WebSearch, Grep, Glob
+model: claude-sonnet-4-6
+hooks:
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: python $HOME/.claude/hooks/validate-consulta-doc-output.py
+---
+```
+
+Detalle de cada campo:
+
+| Campo | Por qué está ahí |
+|---|---|
+| `name: consulta-doc-agent` | Identificador del agent. Debe coincidir con el `agent:` que aparece en el frontmatter de `SKILL.md`. |
+| `description: NUNCA EJECUTAR…` | Marca este agent como uso interno de la skill. Evita que el modelo principal lo invoque por su cuenta como si fuera un agent reutilizable. |
+| `tools` | Conjunto mínimo necesario para que el subagente lea/escriba archivos, edite el `reference.md` y consulte la doc oficial vía web. |
+| `model: claude-sonnet-4-6` | El subagente corre con un modelo más barato y rápido que Opus. Suficiente porque la tarea es de extracción/resumen guiada por un playbook muy estructurado. |
+| `hooks.SubagentStop` | Hook de ciclo de vida del agent: dispara `validate-consulta-doc-output.py` cuando el subagente intenta cerrar. El script bloquea el primer cierre con un `decision: "block"` y un `reason` que fuerza al subagente a auto-revisar la elección de modo (8.A vs 8.B) y la frase meta del paso 9 antes de salir. Anti-loop: solo bloquea una vez. |
+
+El path `python $HOME/.claude/hooks/validate-consulta-doc-output.py` se expande en bash (Linux, macOS, Git Bash sobre Windows). Si tu Claude Code corre los hooks en PowerShell nativa, sustituye `$HOME` por la ruta absoluta de tu home.
+
 ## Invocación
 
 Manualmente con argumento obligatorio:

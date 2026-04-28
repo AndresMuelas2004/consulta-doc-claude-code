@@ -48,7 +48,25 @@ cp install/hooks/validate-consulta-doc-output.py     ~/.claude/hooks/
 cp install/agents/consulta-doc-agent.md ~/.claude/agents/
 ```
 
-> El comando del hook dentro del agent usa `$HOME/.claude/hooks/validate-consulta-doc-output.py`. Esto se expande correctamente en bash (Linux, macOS, Git Bash sobre Windows). Si tu Claude Code corre los hooks en PowerShell nativa, sustituye `$HOME` por la ruta absoluta de tu home.
+Este es el contenido literal del archivo, para que sepas exactamente qué estás copiando:
+
+```yaml
+---
+name: consulta-doc-agent
+description: NUNCA EJECUTAR. Uso interno exclusivo de la skill consulta-doc-claude-code.
+tools: Read, Write, Edit, WebFetch, WebSearch, Grep, Glob
+model: claude-sonnet-4-6
+hooks:
+  SubagentStop:
+    - hooks:
+        - type: command
+          command: python $HOME/.claude/hooks/validate-consulta-doc-output.py
+---
+```
+
+Lo crítico de este archivo es el bloque `hooks.SubagentStop`: declara un hook scope-de-agent que dispara `validate-consulta-doc-output.py` cuando el subagente forkeado intenta cerrar. Ese hook fuerza al subagente a auto-revisar su frase meta antes de salir; sin él, la skill puede emitir la variante del modo equivocado o filtrar contenido del dossier al chat principal.
+
+> El comando del hook usa `$HOME/.claude/hooks/validate-consulta-doc-output.py`. Esto se expande correctamente en bash (Linux, macOS, Git Bash sobre Windows). Si tu Claude Code corre los hooks en PowerShell nativa, sustituye `$HOME` por la ruta absoluta de tu home antes de pegar el archivo en `~/.claude/agents/`.
 
 ### 3. Fusiona los hooks en `~/.claude/settings.json`
 
